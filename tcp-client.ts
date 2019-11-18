@@ -15,10 +15,10 @@ const interval: number = parseInt(args[3]);
 // Create a new TCP client.
 const client: Socket = new net.Socket();
 
-let csvArray = fs.readFileSync(dataPath).toString().split("\n");
+let csvArray: string[] = fs.readFileSync(dataPath).toString().split("\n");
 
 function connect() {
-    console.log("new client")
+    console.log("new client");
     client.connect({port: port, host: host}, () => {
             console.log('TCP connection established with the server.');
             Promise.resolve(0).then(function loop(i) {
@@ -34,34 +34,34 @@ function connect() {
                     .then(loop);
             });
         }
-    )
+    );
 
     client.on("data", data => {
         console.log("Received: " + data)
-    })
+    });
 
     client.on("close", () => {
-        console.log("Connection closed")
+        console.log("Connection closed");
         reconnect()
-    })
+    });
 
     client.on("end", () => {
-        console.log("Connection ended")
+        console.log("Connection ended");
         reconnect()
-    })
+    });
 
     client.on("error", console.error)
 }
 
 // function that reconnect the client to the server
-const reconnect = () => {
+function reconnect() {
     setTimeout(() => {
-        client.removeAllListeners() // the important line that enables you to reopen a connection
+        client.removeAllListeners(); // the important line that enables you to reopen a connection
         connect()
     }, 5000)
 }
 
-connect()
+connect();
 
 // Send a connection request to the server.
 // client.connect({port: port, host: host}, function () {
