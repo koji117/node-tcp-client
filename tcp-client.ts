@@ -1,30 +1,27 @@
-import * as net from "net";
-import * as fs from "fs";
-import * as readline from "readline";
-import * as csv from "csv-parser";
-
+import {readFileSync} from "fs";
 import {Socket} from "net";
+import * as readline from "readline";
 // The port number and hostname of the server.
 const args: string[] = process.argv.slice(2);
 // args [port, hostname, data, interval]
-const port: number = parseInt(args[0]);
+const port: number = parseInt(args[0], 10);
 const host: string = args[1];
 const dataPath: string = "./data/" + args[2] + ".csv";
-const interval: number = parseInt(args[3]);
+const interval: number = parseInt(args[3], 10);
 
 // Create a new TCP client.
-const client: Socket = new net.Socket();
+const client: Socket = new Socket();
 
-let csvArray: string[] = fs.readFileSync(dataPath).toString().split("\n");
+const csvArray: string[] = readFileSync(dataPath).toString().split("\n");
 
 function connect() {
     console.log("new client");
-    client.connect({port: port, host: host}, () => {
-            console.log('TCP connection established with the server.');
+    client.connect({port, host}, () => {
+            console.log("TCP connection established with the server.");
             Promise.resolve(0).then(function loop(i) {
-                return new Promise(function (resolve, reject) {
-                    setTimeout(function () {
-                        client.write('\n' + csvArray[i] + '\n');
+                return new Promise((resolve, reject) => {
+                    setTimeout(() => {
+                        client.write("\n" + csvArray[i] + "\n");
                         resolve(i + 1);
                     }, interval);
                     if (i === csvArray.length - 1) {
@@ -33,32 +30,32 @@ function connect() {
                 })
                     .then(loop);
             });
-        }
+        },
     );
 
-    client.on("data", data => {
-        console.log("Received: " + data)
+    client.on("data", (data) => {
+        console.log("Received: " + data);
     });
 
     client.on("close", () => {
         console.log("Connection closed");
-        reconnect()
+        reconnect();
     });
 
     client.on("end", () => {
         console.log("Connection ended");
-        reconnect()
+        reconnect();
     });
 
-    client.on("error", console.error)
+    client.on("error", console.error);
 }
 
 // function that reconnect the client to the server
 function reconnect() {
     setTimeout(() => {
         client.removeAllListeners(); // the important line that enables you to reopen a connection
-        connect()
-    }, 5000)
+        connect();
+    }, 5000);
 }
 
 connect();
