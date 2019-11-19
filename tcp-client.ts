@@ -18,22 +18,21 @@ const csvArray: string[] = readFileSync(dataPath).toString().split("\n");
 function connect() {
     console.log("new client");
     client.connect({port, host}, () => {
-            console.log("TCP connection established with the server.");
-            Promise.resolve(0).then(function loop(i) {
-                return new Promise((resolve, reject) => {
-                    setTimeout(() => {
-                        client.write("\n" + csvArray[i] + "\n");
-                        resolve(i + 1);
+        console.log("TCP connection established with the server.");
+        Promise.resolve(0).then(function loop(i) {
+            return new Promise((resolve, reject) => {
+                setTimeout(() => {
+                    client.write("\n" + csvArray[i] + "\n");
+                    resolve(i + 1);
                     }, interval);
-                    if (i === csvArray.length - 1) {
-                        i = 0;
-                    }
-                })
-                    .then(loop);
-            });
+                if (i === csvArray.length - 1) {
+                    i = 0;
+                }
+            })
+                .then(loop);
+        });
         },
     );
-
     client.on("data", (data) => {
         console.log("Received: " + data);
     });
