@@ -1,6 +1,7 @@
 import {readFileSync} from "fs";
 import {Socket} from "net";
 import * as readline from "readline";
+
 // The port number and hostname of the server.
 const args: string[] = process.argv.slice(2);
 // args [port, hostname, data, interval]
