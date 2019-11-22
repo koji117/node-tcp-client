@@ -1,6 +1,5 @@
 import {readFileSync} from "fs";
 import {Socket} from "net";
-import * as readline from "readline";
 
 // The port number and hostname of the server.
 const args: string[] = process.argv.slice(2);
@@ -12,8 +11,7 @@ const interval: number = parseInt(args[3], 10);
 
 // Create a new TCP client.
 const client: Socket = new Socket();
-
-const csvArray: string[] = readFileSync(dataPath).toString().split("\n");
+const csvArray = convertCsvToArray(dataPath);
 
 function connect() {
     console.log("new client");
@@ -59,6 +57,10 @@ function reconnect() {
 }
 
 connect();
+
+export function convertCsvToArray(path) {
+    return readFileSync(path).toString().split("\n");
+}
 
 // Send a connection request to the server.
 // client.connect({port: port, host: host}, function () {
