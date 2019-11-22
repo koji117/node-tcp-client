@@ -11,11 +11,6 @@ const interval: number = parseInt(args[3], 10);
 
 // Create a new TCP client.
 const client: Socket = new Socket();
-
-export function convertCsvToArray(path) {
-    return readFileSync(path).toString().split("\n");
-}
-
 const csvArray = convertCsvToArray(dataPath);
 
 function connect() {
@@ -62,6 +57,10 @@ function reconnect() {
 }
 
 connect();
+
+export function convertCsvToArray(path) {
+    return readFileSync(path).toString().split("\n");
+}
 
 // Send a connection request to the server.
 // client.connect({port: port, host: host}, function () {
