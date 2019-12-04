@@ -1,5 +1,6 @@
 import {readFileSync} from "fs";
 import {Socket} from "net";
+import {interval, Observable, Subscription} from "rxjs";
 
 // The port number and hostname of the server.
 const args: string[] = process.argv.slice(2);
@@ -7,28 +8,36 @@ const args: string[] = process.argv.slice(2);
 const port: number = parseInt(args[0], 10);
 const host: string = args[1];
 const dataPath: string = "./data/" + args[2] + ".csv";
-const interval: number = parseInt(args[3], 10);
+const intervalValue: number = parseInt(args[3], 10);
 
 // Create a new TCP client.
 const client: Socket = new Socket();
 const csvArray = convertCsvToArray(dataPath);
 
+const rxInterval: Observable<number> = interval(intervalValue);
+let subscription: Subscription;
+
 function connect() {
     console.log("new client");
     client.connect({port, host}, () => {
-        console.log("TCP connection established with the server.");
-        Promise.resolve(0).then(function loop(i) {
-            return new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    client.write("\n" + csvArray[i] + "\n");
-                    resolve(i + 1);
-                    }, interval);
-                if (i === csvArray.length - 1) {
-                    i = 0;
-                }
-            })
-                .then(loop);
-        });
+            console.log("TCP connection established with the server.");
+            subscription = rxInterval.subscribe((i) => {
+                client.write("\n" + csvArray[i] + "\n");
+                i++;
+            });
+            // Implementation using Promise below
+            // Promise.resolve(0).then(function loop(i) {
+            //     return new Promise((resolve, reject) => {
+            //         setTimeout(() => {
+            //             client.write("\n" + csvArray[i] + "\n");
+            //             resolve(i + 1);
+            //             }, intervalValue);
+            //         if (i === csvArray.length - 1) {
+            //             i = 0;
+            //         }
+            //     })
+            //         .then(loop);
+            // });
         },
     );
     client.on("data", (data) => {
@@ -45,7 +54,12 @@ function connect() {
         reconnect();
     });
 
-    client.on("error", console.error);
+    client.on("error", (error) => {
+        console.error(error);
+        if (subscription) {
+            subscription.unsubscribe();
+        }
+    });
 }
 
 // function that reconnect the client to the server
