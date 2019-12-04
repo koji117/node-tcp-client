@@ -2,9 +2,9 @@ import {readFileSync} from "fs";
 import {Socket} from "net";
 import {interval, Observable, Subscription} from "rxjs";
 
-// The port number and hostname of the server.
-const args: string[] = process.argv.slice(2);
+// Get the port number and hostname of the server from command arguments.
 // args [port, hostname, data, interval]
+const args: string[] = process.argv.slice(2);
 const port: number = parseInt(args[0], 10);
 const host: string = args[1];
 const dataPath: string = "./data/" + args[2] + ".csv";
@@ -14,32 +14,22 @@ const intervalValue: number = parseInt(args[3], 10);
 const client: Socket = new Socket();
 const csvArray = convertCsvToArray(dataPath);
 
+// Create a subscription
 const rxInterval: Observable<number> = interval(intervalValue);
 let subscription: Subscription;
 
+// Connect to the server
 function connect() {
-    console.log("new client");
+    console.log("new client")
     client.connect({port, host}, () => {
             console.log("TCP connection established with the server.");
             subscription = rxInterval.subscribe((i) => {
                 client.write("\n" + csvArray[i] + "\n");
                 i++;
             });
-            // Implementation using Promise
-        // Promise.resolve(0).then(function loop(i) {
-            //     return new Promise((resolve, reject) => {
-            //         setTimeout(() => {
-            //             client.write("\n" + csvArray[i] + "\n");
-            //             resolve(i + 1);
-            //             }, intervalValue);
-            //         if (i === csvArray.length - 1) {
-            //             i = 0;
-            //         }
-            //     })
-            //         .then(loop);
-            // });
         },
     );
+
     client.on("data", (data) => {
         console.log("Received: " + data);
     });
