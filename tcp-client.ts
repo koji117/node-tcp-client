@@ -25,8 +25,8 @@ function connect() {
                 client.write("\n" + csvArray[i] + "\n");
                 i++;
             });
-            // Implementation using Promise below
-            // Promise.resolve(0).then(function loop(i) {
+            // Implementation using Promise
+        // Promise.resolve(0).then(function loop(i) {
             //     return new Promise((resolve, reject) => {
             //         setTimeout(() => {
             //             client.write("\n" + csvArray[i] + "\n");
